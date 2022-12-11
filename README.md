@@ -1,10 +1,14 @@
 # Streams for Python
 
-Prototypical implementation of the Stream data structure, taking heavy inspiration from Java 8+ streams. This data structure is for chaining methods on ordered collections of data.
+Prototypical implementation of the Stream data structure, taking heavy inspiration from Java 8+ streams. This data structure is for chaining methods on ordered collections of typed data.
 
 ## Roadmap
 
 I intend to test & publish this module to Pip with every commit to `main`. This will be implemented using GitHub's automated CI/CD tools.
+
+## Generic Type
+
+A Stream has a single type parameter which indicates the type of data contained in the Stream after transformations have been applied. Your IDE's type checker should be able to infer a Stream's type, even after several chained operations.
 
 ## Eager vs. Lazy
 
