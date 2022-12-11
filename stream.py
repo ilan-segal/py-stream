@@ -67,6 +67,12 @@ class Stream(Generic[T]):
         """
         return reduce(func, self.__contents, initial)
 
+    def reverse(self) -> Stream[T]:
+        """
+        Return a Stream with this Stream's content in reverse order.
+        """
+        return Stream(self.__contents[::-1])
+
     def get_first(self) -> T:
         """
         Return the first element of this Stream.
