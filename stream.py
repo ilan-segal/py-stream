@@ -17,8 +17,6 @@ R = TypeVar('R')
 
 class Stream(Generic[T]):
 
-    __contents: list[T]
-
     def __init__(self, contents: Iterable[T]) -> None:
         raise NotImplementedError('Stream is an abstract class and cannot be constructed directly.')
 
@@ -47,7 +45,7 @@ class Stream(Generic[T]):
         Return a copy of this Stream's contents excluding items which cause
         predicate to return False when given as input.
         """
-        return Stream(filter(predicate, self.__contents))
+        raise NotImplementedError
 
     def sorted(self, key: Optional[Callable[[T], Any]] = None, reverse: bool = False) -> Stream[T]:
         """
