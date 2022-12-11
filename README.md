@@ -39,16 +39,16 @@ Streams support monadic-like behaviour with the `flat_map` method, which accepts
 
 ```python
 def get_prime_factors(n: int) -> Stream[int]:
-    # Return Stream containing all unique prime factors of n
+    # Return Stream containing the prime factorization of n
 
 get_prime_factors(10)  # Stream([2, 5])
 get_prime_factors(11)  # Stream([11])
-get_prime_factors(12)  # Stream([2, 3, 4, 6])
+get_prime_factors(12)  # Stream([2, 2, 3])
 
 s = (
     Stream([10, 11, 12])
     .flat_map(get_prime_factors)
-)  # Stream([2, 5, 11, 2, 3, 4, 6])
+)  # Stream([2, 5, 11, 2, 2, 3])
 
 ```
 
