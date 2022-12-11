@@ -117,21 +117,21 @@ class EagerStream(Stream[T]):
     def __init__(self, contents: Iterable[T]) -> None:
         self.__contents = deepcopy([c for c in contents])
 
-    def map(self, func: Callable[[T], R]) -> Stream[R]:
+    def map(self, func: Callable[[T], R]) -> EagerStream[R]:
         return EagerStream(map(func, self.__contents))
 
-    def flat_map(self, func: Callable[[T], Stream[R]]) -> Stream[R]:
+    def flat_map(self, func: Callable[[T], Stream[R]]) -> EagerStream[R]:
         streams = map(func, self.__contents)
         flattened_contents = [c for stream in streams for c in stream.as_list()]
         return EagerStream(flattened_contents)
 
-    def concat(self, other: Stream[R]) -> Stream[T | R]:
+    def concat(self, other: Stream[R]) -> EagerStream[T | R]:
         return self + other
 
-    def filter(self, predicate: Callable[[T], bool]) -> Stream[T]:
+    def filter(self, predicate: Callable[[T], bool]) -> EagerStream[T]:
         return EagerStream(filter(predicate, self.__contents))
 
-    def sorted(self, key: Optional[Callable[[T], Any]] = None, reverse: bool = False) -> Stream[T]:
+    def sorted(self, key: Optional[Callable[[T], Any]] = None, reverse: bool = False) -> EagerStream[T]:
         if key is None:
             return EagerStream(sorted(self.__contents, reverse=reverse))  # type: ignore
         return EagerStream(sorted(self.__contents, key=key, reverse=reverse))
@@ -139,7 +139,7 @@ class EagerStream(Stream[T]):
     def reduce(self, func: Callable[[R, T], R], initial: R) -> R:
         return reduce(func, self.__contents, initial)
 
-    def reverse(self) -> Stream[T]:
+    def reverse(self) -> EagerStream[T]:
         return EagerStream(self.__contents[::-1])
 
     def find_first(self, predicate: Callable[[T], bool]) -> Optional[T]:
@@ -170,7 +170,7 @@ class EagerStream(Stream[T]):
     def __len__(self) -> int:
         return self.count()
 
-    def __add__(self, other: Stream[R]) -> Stream[T | R]:
+    def __add__(self, other: Stream[R]) -> EagerStream[T | R]:
         assert isinstance(other, Stream), \
             f'Stream concatenation not supported between types {type(self)}, {type(other)}'
         return EagerStream(self.as_list() + other.as_list())
