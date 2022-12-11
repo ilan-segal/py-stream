@@ -98,10 +98,7 @@ class Stream(Generic[T]):
         """
         Return the number of elements in this Stream.
         """
-        raise NotImplementedError
-
-    def __len__(self) -> int:
-        return len(self.as_list())
+        return len(self)
 
     def __add__(self, other: Stream[R]) -> Stream[T | R]:
         raise NotImplementedError
@@ -110,6 +107,9 @@ class Stream(Generic[T]):
         if not isinstance(__o, Stream):
             return False
         return self.as_list() == __o.as_list()
+
+    def __len__(self) -> int:
+        return len(self.as_list())
 
 
 class EagerStream(Stream[T]):
@@ -162,12 +162,6 @@ class EagerStream(Stream[T]):
 
     def as_list(self) -> list[T]:
         return deepcopy(self.__contents)
-
-    def count(self) -> int:
-        return len(self.__contents)
-
-    def __len__(self) -> int:
-        return self.count()
 
     def __add__(self, other: Stream[R]) -> EagerStream[T | R]:
         assert isinstance(other, Stream), \
@@ -276,16 +270,10 @@ class LazyStream(Stream[T]):
             return None
         return evaluated[-1]
 
-    def count(self) -> int:
-        return len(self.as_list())
-
 
     ########################
     ## BUILT-IN OVERRIDES ##
     ########################
-
-    def __len__(self) -> int:
-        return self.count()
 
     def __add__(self, other: Stream[R]) -> Stream[R | T]:
         assert isinstance(other, Stream), \
