@@ -25,7 +25,7 @@ You may filter a Stream's contents based on some predicate:
 s = (
     Stream([1, 2, 3, 4])
     .filter(lambda x: x % 2 == 0)  # Stream([2, 4])
-    .filter(lambda x: x > 3)  # Stream([4])
+    .filter(lambda x: x < 4)  # Stream([2])
 )
 ```
 
