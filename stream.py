@@ -2,6 +2,7 @@ from __future__ import annotations
 from copy import deepcopy
 from functools import reduce
 from typing import (
+    Any,
     Callable,
     Generic,
     Iterable,
@@ -14,7 +15,7 @@ T = TypeVar('T')
 R = TypeVar('R')
 
 
-class Stream(Generic[T]):
+class Stream(Generic[T], Iterable[T]):
     """
     Iterable stream class with monad-like behaviours.
     """
@@ -37,7 +38,7 @@ class Stream(Generic[T]):
         then concatenate said streams into one Stream.
         """
         streams = map(func, self.__contents)
-        flattened_contents = [c for stream in streams for c in stream]
+        flattened_contents = [c for stream in streams for c in stream.as_list()]
         return Stream(flattened_contents)
 
     def concat(self, other: Stream[R]) -> Stream[T | R]:
@@ -53,14 +54,16 @@ class Stream(Generic[T]):
         """
         return Stream(filter(predicate, self.__contents))
 
-    def sorted(self, key: Optional[Callable[[T], R]] = None, reverse: bool = False) -> Stream[T]:
+    def sorted(self, key: Optional[Callable[[T], Any]] = None, reverse: bool = False) -> Stream[T]:
         """
         Return a sorted stream with optional key and reverse arguments. See built-in
         sorted function for role of key and reverse.
         """
-        return Stream(sorted(self.__contents, key, reverse))
+        if key is None:
+            return Stream(sorted(self.__contents, reverse=reverse))  # type: ignore
+        return Stream(sorted(self.__contents, key=key, reverse=reverse))
 
-    def reduce(self, func: Callable[[T, R], R], initial: R) -> R:
+    def reduce(self, func: Callable[[R, T], R], initial: R) -> R:
         """
         Reduce the contents of this Stream to a single value using a reducing
         function and an initial value.
@@ -105,7 +108,7 @@ class Stream(Generic[T]):
         return deepcopy(self.__contents)
 
     def __iter__(self) -> Iterable[T]:
-        self.as_list()
+        return self.as_list()
 
     def __len__(self) -> int:
         return len(self.__contents)
