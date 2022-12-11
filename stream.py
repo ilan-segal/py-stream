@@ -20,7 +20,7 @@ class Stream(Generic[T]):
     __contents: list[T]
 
     def __init__(self, contents: Iterable[T]) -> None:
-        self.__contents = deepcopy([c for c in contents])
+        raise NotImplementedError('Stream is an abstract class and cannot be constructed directly.')
 
     def map(self, func: Callable[[T], R]) -> Stream[R]:
         """
