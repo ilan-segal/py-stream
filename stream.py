@@ -82,16 +82,20 @@ class Stream(Generic[T]):
                 return item
         return None
 
-    def get_first(self) -> T:
+    def get_first(self) -> Optional[T]:
         """
         Return the first element of this Stream.
         """
+        if len(self.__contents) == 0:
+            return None 
         return self.__contents[0]
 
-    def get_last(self) -> T:
+    def get_last(self) -> Optional[T]:
         """
         Return the last element of this Stream.
         """
+        if len(self.__contents) == 0:
+            return None 
         return self.__contents[-1]
 
     def as_list(self) -> list[T]:
