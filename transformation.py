@@ -7,29 +7,28 @@ from typing import (
 )
 
 
-T = TypeVar('T')
 R = TypeVar('R')
 NEXT_R = TypeVar('NEXT_R')
 
 
-class _Transformation(Generic[T, R]):
+class _Transformation(Generic[R]):
     """
     Operation on an iterable. Exact behaviour is defined by func.
     """
 
-    __func: Callable[[Iterable[T]], Iterable[R]]
+    __result_getter: Callable[[], Iterable[R]]
 
-    def __init__(self, func: Callable[[Iterable[T]], Iterable[R]]) -> None:
-        self.__func = func
+    def __init__(self, func: Callable[[], Iterable[R]]) -> None:
+        self.__result_getter = func
 
-    def then(self, next_transformation: _Transformation[R, NEXT_R]) -> _Transformation[T, NEXT_R]:
-        def next_func(inputs: Iterable[T]) -> Iterable[NEXT_R]:
-            intermediate = self.apply(inputs)
-            return next_transformation.apply(intermediate)
-        return _Transformation(next_func)
+    def then(self, next_func: Callable[[Iterable[R]], Iterable[NEXT_R]]) -> _Transformation[NEXT_R]:
+        def next_func_wrapper() -> Iterable[NEXT_R]:
+            intermediate = self.get()
+            return next_func(intermediate)
+        return _Transformation(next_func_wrapper)
 
-    def apply(self, inputs: Iterable[T]) -> Iterable[R]:
+    def get(self) -> Iterable[R]:
         """
         Given an input iterable, return a transformed iterable according to func.
         """
-        return self.__func(inputs)
+        return self.__result_getter()

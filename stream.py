@@ -179,80 +179,70 @@ class EagerStream(Stream[T]):
 InitType = TypeVar('InitType')
 NextType = TypeVar('NextType')
 
-class LazyStream(Generic[T, R], Stream[R]):
-    """
-    T = Initial contents type
-    R = "Return" type
-    """
+class LazyStream(Stream[R]):
 
-    __initial_contents: list[T]
-    __transformation: _Transformation[T, R]
+    __transformation: _Transformation[R]
 
     @staticmethod
-    def of(contents: Iterable[InitType]) -> LazyStream[InitType, InitType]:
-        def identity(x: Iterable[InitType]) -> Iterable[InitType]:
-            return x
+    def of(contents: Iterable[InitType]) -> LazyStream[InitType]:
+        def identity() -> Iterable[InitType]:
+            return deepcopy(contents)
         identity_transformation = _Transformation(identity)
-        return LazyStream(contents, identity_transformation)
+        return LazyStream(identity_transformation)
 
     def __init__(
         self,
-        contents: Iterable[T],
-        transformation: _Transformation[T, R],
+        transformation: _Transformation[R],
         ) -> None:
         """
         This constructor should NOT be used by the client. To create a LazyStream
         instance, see `LazyStream.of`
         """
-        self.__initial_contents = deepcopy([c for c in contents])
         self.__transformation = transformation
 
     def __chain_transformation(
         self, 
         transform_function: Callable[[Iterable[R]], Iterable[NextType]],
-        ) -> LazyStream[T, NextType]:
+        ) -> LazyStream[NextType]:
         """
         Helper function for chaining transformations together.
         """
-        return LazyStream(
-            self.__initial_contents, 
-            self.__transformation.then(_Transformation(transform_function))
-        )
+        return LazyStream(self.__transformation.then(transform_function))
 
     #############################
     ## INTERMEDIATE OPERATIONS ##
     #############################
 
-    def map(self, func: Callable[[R], NextType]) -> LazyStream[T, NextType]:
+    def map(self, func: Callable[[R], NextType]) -> LazyStream[NextType]:
         def elementwise_func(inputs: Iterable[R]) -> Iterable[NextType]:
             return map(func, inputs)
         return self.__chain_transformation(elementwise_func)
         
-    def flat_map(self, func: Callable[[R], Stream[NextType]]) -> LazyStream[T, NextType]:
+    def flat_map(self, func: Callable[[R], Stream[NextType]]) -> LazyStream[NextType]:
         def flatten_func(inputs: Iterable[R]) -> Iterable[NextType]:
             output_streams = map(func, inputs)
             flattened_contents = [item for stream in output_streams for item in stream.as_list()]
             return flattened_contents
         return self.__chain_transformation(flatten_func)
 
-    def concat(self, other: Stream[NextType]) -> LazyStream[T, R | NextType]:
+    def concat(self, other: Stream[NextType]) -> LazyStream[R | NextType]:
         def concat_func(inputs: Iterable[R]) -> Iterable[R | NextType]:
             return [item for item in inputs] + other.as_list()
         return self.__chain_transformation(concat_func)
 
-    def filter(self, predicate: Callable[[R], bool]) -> LazyStream[T, R]:
+    def filter(self, predicate: Callable[[R], bool]) -> LazyStream[R]:
         def filter_func(inputs: Iterable[R]) -> Iterable[R]:
             return filter(predicate, inputs)
         return self.__chain_transformation(filter_func)
 
-    def sorted(self, key: Optional[Callable[[R], Any]] = None, reverse: bool = False) -> LazyStream[T, R]:
+    def sorted(self, key: Optional[Callable[[R], Any]] = None, reverse: bool = False) -> LazyStream[R]:
         def sorted_func(inputs: Iterable[R]) -> Iterable[R]:
             if key is None:
                 return sorted(inputs, reverse=reverse)  # type: ignore
             return sorted(inputs, key=key, reverse=reverse)
         return self.__chain_transformation(sorted_func)
 
-    def reverse(self) -> LazyStream[T, R]:
+    def reverse(self) -> LazyStream[R]:
         def reverse_func(inputs: Iterable[R]) -> Iterable[R]:
             return [item for item in inputs][::-1]
         return self.__chain_transformation(reverse_func)
@@ -263,7 +253,7 @@ class LazyStream(Generic[T, R], Stream[R]):
     #########################
 
     def __get_evaluated_contents(self) -> Iterable[R]:
-        return self.__transformation.apply(self.__initial_contents)
+        return self.__transformation.get()
     
     def as_list(self) -> list[R]:
         return [item for item in self.__get_evaluated_contents()]
