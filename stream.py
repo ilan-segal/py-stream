@@ -106,6 +106,11 @@ class Stream(Generic[T]):
     def __add__(self, other: Stream[R]) -> Stream[T | R]:
         raise NotImplementedError
 
+    def __eq__(self, __o: object) -> bool:
+        if not isinstance(__o, Stream):
+            return False
+        return self.as_list() == __o.as_list()
+
 
 class EagerStream(Stream[T]):
 
