@@ -100,11 +100,8 @@ class Stream(Generic[T]):
         """
         raise NotImplementedError
 
-    def __iter__(self) -> Iterable[T]:
-        raise NotImplementedError
-
     def __len__(self) -> int:
-        raise NotImplementedError
+        return len(self.as_list())
 
     def __add__(self, other: Stream[R]) -> Stream[T | R]:
         raise NotImplementedError
@@ -163,9 +160,6 @@ class EagerStream(Stream[T]):
 
     def count(self) -> int:
         return len(self.__contents)
-
-    def __iter__(self) -> Iterable[T]:
-        return self.as_list()
 
     def __len__(self) -> int:
         return self.count()
@@ -284,9 +278,6 @@ class LazyStream(Stream[T]):
     ########################
     ## BUILT-IN OVERRIDES ##
     ########################
-
-    def __iter__(self) -> Iterable[T]:
-        return self.__get_evaluated_contents()
 
     def __len__(self) -> int:
         return self.count()
