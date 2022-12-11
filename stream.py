@@ -5,6 +5,7 @@ from typing import (
     Callable,
     Generic,
     Iterable,
+    Optional,
     TypeVar,
 )
 
@@ -51,6 +52,13 @@ class Stream(Generic[T]):
         predicate to return False when given as input.
         """
         return Stream(filter(predicate, self.__contents))
+
+    def sorted(self, key: Optional[Callable[[T], R]] = None, reverse: bool = False) -> Stream[T]:
+        """
+        Return a sorted stream with optional key and reverse arguments. See built-in
+        sorted function for role of key and reverse.
+        """
+        return Stream(sorted(self.__contents, key, reverse))
 
     def reduce(self, func: Callable[[T, R], R], initial: R) -> R:
         """
