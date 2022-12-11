@@ -117,29 +117,29 @@ class EagerStream(Stream[T]):
         self.__contents = deepcopy([c for c in contents])
 
     def map(self, func: Callable[[T], R]) -> Stream[R]:
-        return Stream(map(func, self.__contents))
+        return EagerStream(map(func, self.__contents))
 
     def flat_map(self, func: Callable[[T], Stream[R]]) -> Stream[R]:
         streams = map(func, self.__contents)
         flattened_contents = [c for stream in streams for c in stream.as_list()]
-        return Stream(flattened_contents)
+        return EagerStream(flattened_contents)
 
     def concat(self, other: Stream[R]) -> Stream[T | R]:
         return self + other
 
     def filter(self, predicate: Callable[[T], bool]) -> Stream[T]:
-        return Stream(filter(predicate, self.__contents))
+        return EagerStream(filter(predicate, self.__contents))
 
     def sorted(self, key: Optional[Callable[[T], Any]] = None, reverse: bool = False) -> Stream[T]:
         if key is None:
-            return Stream(sorted(self.__contents, reverse=reverse))  # type: ignore
-        return Stream(sorted(self.__contents, key=key, reverse=reverse))
+            return EagerStream(sorted(self.__contents, reverse=reverse))  # type: ignore
+        return EagerStream(sorted(self.__contents, key=key, reverse=reverse))
 
     def reduce(self, func: Callable[[R, T], R], initial: R) -> R:
         return reduce(func, self.__contents, initial)
 
     def reverse(self) -> Stream[T]:
-        return Stream(self.__contents[::-1])
+        return EagerStream(self.__contents[::-1])
 
     def find_first(self, predicate: Callable[[T], bool]) -> Optional[T]:
         for item in self.__contents:
@@ -172,4 +172,4 @@ class EagerStream(Stream[T]):
     def __add__(self, other: Stream[R]) -> Stream[T | R]:
         assert isinstance(other, Stream), \
             f'Stream concatenation not supported between types {type(self)}, {type(other)}'
-        return Stream(self.__contents + other.__contents)
+        return EagerStream(self.as_list() + other.as_list())
