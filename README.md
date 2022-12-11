@@ -98,6 +98,10 @@ A Stream has several methods which return a non-Stream object. These are called 
 
 This method takes no arguments and returns the Stream's deep-copied contents in a `list`.
 
+### `Stream.count`
+
+Return the number of elements in the Stream.
+
 ### `Stream.find_first`
 
 Given some predicate, return the first element of the Stream which matches said predicate. If none match, return None.
@@ -114,7 +118,7 @@ Return the last element of the Stream.
 
 ### `__add__`
 
-Equivalent to `Stream.concat`.
+Equivalent to `Stream.concat()`.
 
 ### `__iter__`
 
@@ -122,4 +126,4 @@ Return an iterable version of the Stream.
 
 ### `__len__`
 
-Return the number of elements in the Stream.
+Equivalent to `Stream.count()`

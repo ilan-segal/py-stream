@@ -107,11 +107,17 @@ class Stream(Generic[T], Iterable[T]):
         """
         return deepcopy(self.__contents)
 
+    def count(self) -> int:
+        """
+        Return the number of elements in this Stream.
+        """
+        return len(self.__contents)
+
     def __iter__(self) -> Iterable[T]:
         return self.as_list()
 
     def __len__(self) -> int:
-        return len(self.__contents)
+        return self.count()
 
     def __add__(self, other: Stream[R]) -> Stream[T | R]:
         assert isinstance(other, Stream), \
