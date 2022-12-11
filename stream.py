@@ -59,6 +59,18 @@ class Stream(Generic[T]):
         """
         return reduce(func, self.__contents, initial)
 
+    def getFirst(self) -> T:
+        """
+        Return the first element of this Stream.
+        """
+        return self.__contents[0]
+
+    def getLast(self) -> T:
+        """
+        Return the last element of this Stream.
+        """
+        return self.__contents[-1]
+
     def asList(self) -> list[T]:
         """
         Return a deep copy of this Stream's contents as a list.
