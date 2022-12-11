@@ -1,5 +1,6 @@
 from __future__ import annotations
 from copy import deepcopy
+from functools import reduce
 from typing import (
     Callable,
     Generic,
@@ -51,10 +52,12 @@ class Stream(Generic[T]):
         """
         return Stream(filter(predicate, self.__contents))
 
-    def reduce(self, func: Callable[[T, R], R]) -> R:
+    def reduce(self, func: Callable[[T, R], R], initial: R) -> R:
         """
-        
+        Reduce the contents of this Stream to a single value using a reducing
+        function and an initial value.
         """
+        return reduce(func, self.__contents, initial)
 
     def asList(self) -> list[T]:
         """
