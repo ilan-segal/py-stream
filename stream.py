@@ -51,6 +51,11 @@ class Stream(Generic[T]):
         """
         return Stream(filter(predicate, self.__contents))
 
+    def reduce(self, func: Callable[[T, R], R]) -> R:
+        """
+        
+        """
+
     def asList(self) -> list[T]:
         """
         Return a deep copy of this Stream's contents as a list.
