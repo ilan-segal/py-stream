@@ -2,6 +2,10 @@
 
 Prototypical implementation of the Stream data structure, taking heavy inspiration from Java 8+ streams. This data structure is for chaining methods on ordered collections of data.
 
+## Roadmap
+
+I intend to test & publish this module to Pip with every commit to `main`. This will be implemented using GitHub's automated CI/CD tools.
+
 ## Chained operations
 
 A Stream has several transformational methods that return new Streams. When chaining these methods together, each new Stream is based on a deep copy of the previous Stream's contents. A Stream is never modified in-place.
