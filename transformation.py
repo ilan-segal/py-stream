@@ -1,3 +1,4 @@
+from __future__ import annotations
 from typing import (
     Callable,
     Generic,
@@ -8,49 +9,27 @@ from typing import (
 
 T = TypeVar('T')
 R = TypeVar('R')
+NEXT_R = TypeVar('NEXT_R')
 
 
 class _Transformation(Generic[T, R]):
     """
-    Abstract Stream transformation.
+    Operation on an iterable. Exact behaviour is defined by func.
     """
 
-    _func: Callable[[T], R]
+    __func: Callable[[Iterable[T]], Iterable[R]]
 
-    def __init__(self, func: Callable[[T], R]) -> None:
-        self._func = func
+    def __init__(self, func: Callable[[Iterable[T]], Iterable[R]]) -> None:
+        self.__func = func
+
+    def then(self, next_transformation: _Transformation[R, NEXT_R]) -> _Transformation[T, NEXT_R]:
+        def next_func(inputs: Iterable[T]) -> Iterable[NEXT_R]:
+            intermediate = self.apply(inputs)
+            return next_transformation.apply(intermediate)
+        return _Transformation(next_func)
 
     def apply(self, inputs: Iterable[T]) -> Iterable[R]:
         """
         Given an input iterable, return a transformed iterable according to func.
         """
-        raise NotImplementedError
-
-
-class _ElementWiseTransformation(_Transformation[T, R]):
-    """
-    Transforms each element of the iterable independently.
-    """
-    
-    def apply(self, inputs: Iterable[T]) -> Iterable[R]:
-        return map(self._func, inputs)
-
-
-class _FlatTransformation(_Transformation[T, Iterable[R]]):
-    """
-    Flattens the resultant iterables of func into a single iterable before returning.
-    """
-
-    def apply(self, inputs: Iterable[T]) -> Iterable[R]:
-        outputs = map(self._func, inputs)
-        flattened_outputs = [item for output in outputs for item in output]
-        return flattened_outputs
-
-
-class _CollectiveTransformation(_Transformation[Iterable[T], Iterable[R]]):
-    """
-    Modifies the entire iterable altogether. Useful for reversing a list, for example.
-    """
-
-    def apply(self, inputs: Iterable[T]) -> Iterable[R]:
-        return self._func(inputs)
+        return self.__func(inputs)
