@@ -31,7 +31,7 @@ class Stream(Generic[T]):
         """
         return Stream(map(func, self.__contents))
 
-    def flatMap(self, func: Callable[[T], Stream[R]]) -> Stream[R]:
+    def flat_map(self, func: Callable[[T], Stream[R]]) -> Stream[R]:
         """
         Use func to transform this Stream's contents into a collection of Streams,
         then concatenate said streams into one Stream.
@@ -67,26 +67,26 @@ class Stream(Generic[T]):
         """
         return reduce(func, self.__contents, initial)
 
-    def getFirst(self) -> T:
+    def get_first(self) -> T:
         """
         Return the first element of this Stream.
         """
         return self.__contents[0]
 
-    def getLast(self) -> T:
+    def get_last(self) -> T:
         """
         Return the last element of this Stream.
         """
         return self.__contents[-1]
 
-    def asList(self) -> list[T]:
+    def as_list(self) -> list[T]:
         """
         Return a deep copy of this Stream's contents as a list.
         """
         return deepcopy(self.__contents)
 
     def __iter__(self) -> Iterable[T]:
-        self.asList()
+        self.as_list()
 
     def __len__(self) -> int:
         return len(self.__contents)
