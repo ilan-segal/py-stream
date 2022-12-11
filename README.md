@@ -6,6 +6,15 @@ Prototypical implementation of the Stream data structure, taking heavy inspirati
 
 I intend to test & publish this module to Pip with every commit to `main`. This will be implemented using GitHub's automated CI/CD tools.
 
+## Eager vs. Lazy
+
+There exist two implementations of the abstract `Stream` base class:
+
+* `EagerStream`
+* `LazyStream`
+
+As their names suggest, `EagerStream` evaluates transformations as soon as possible while `LazyStream` delays all transformations until a terminal operation is invoked.
+
 ## Chained operations
 
 A Stream has several transformational methods that return new Streams. When chaining these methods together, each new Stream is based on a deep copy of the previous Stream's contents. A Stream is never modified in-place.
@@ -16,9 +25,9 @@ This method combines the contents of this stream with another Stream:
 
 ```python
 s = (
-    Stream([1, 2, 3])
-    .concat(Stream([4, 5, 6]))
-)  # Stream([1, 2, 3, 4, 5, 6])
+    EagerStream([1, 2, 3])
+    .concat(EagerStream([4, 5, 6]))
+)  # EagerStream([1, 2, 3, 4, 5, 6])
 ```
 
 ### `Stream.filter`
@@ -27,9 +36,9 @@ You may filter a Stream's contents based on some predicate:
 
 ```python
 s = (
-    Stream([1, 2, 3, 4])
-    .filter(lambda x: x % 2 == 0)  # Stream([2, 4])
-    .filter(lambda x: x < 4)  # Stream([2])
+    EagerStream([1, 2, 3, 4])
+    .filter(lambda x: x % 2 == 0)  # EagerStream([2, 4])
+    .filter(lambda x: x < 4)  # EagerStream([2])
 )
 ```
 
@@ -41,14 +50,14 @@ Streams support monadic-like behaviour with the `flat_map` method, which accepts
 def get_prime_factors(n: int) -> Stream[int]:
     # Return Stream containing the prime factorization of n
 
-get_prime_factors(10)  # Stream([2, 5])
-get_prime_factors(11)  # Stream([11])
-get_prime_factors(12)  # Stream([2, 2, 3])
+get_prime_factors(10)  # EagerStream([2, 5])
+get_prime_factors(11)  # EagerStream([11])
+get_prime_factors(12)  # EagerStream([2, 2, 3])
 
 s = (
-    Stream([10, 11, 12])
+    EagerStream([10, 11, 12])
     .flat_map(get_prime_factors)
-)  # Stream([2, 5, 11, 2, 2, 3])
+)  # EagerStream([2, 5, 11, 2, 2, 3])
 
 ```
 
@@ -59,7 +68,7 @@ Using the `map` method you can transform a Stream element-wise:
 ```python
 a = [0, 1, 2]
 b = (
-    Stream(a)
+    EagerStream(a)
     .map(lambda x: x*x)  # [0, 1, 4]
     .map(lambda x: chr(ord('a') + x))  # ['a', 'b', 'e']
     .map(lambda c: c*3)  # ['aaa', 'bbb', 'eee']
@@ -72,8 +81,8 @@ You may reverse the contents of a Stream:
 
 ```python
 s = (
-    Stream([1, 2, 3])
-    .reverse()  # Stream([3, 2, 1])
+    EagerStream([1, 2, 3])
+    .reverse()  # EagerStream([3, 2, 1])
 )
 ```
 
@@ -83,8 +92,8 @@ You may create a sorted Stream:
 
 ```python
 s = (
-    Stream([1, -1, 5, 0])
-    .sorted()  # Stream([-1, 0, 1, 5])
+    EagerStream([1, -1, 5, 0])
+    .sorted()  # EagerStream([-1, 0, 1, 5])
 )
 ```
 
