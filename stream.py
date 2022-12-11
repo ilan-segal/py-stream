@@ -73,6 +73,15 @@ class Stream(Generic[T]):
         """
         return Stream(self.__contents[::-1])
 
+    def find_first(self, predicate: Callable[[T], bool]) -> Optional[T]:
+        """
+        Return the first element of this Stream for which predicate returns True.
+        """
+        for item in self.__contents:
+            if predicate(item):
+                return item
+        return None
+
     def get_first(self) -> T:
         """
         Return the first element of this Stream.
