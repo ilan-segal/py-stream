@@ -175,17 +175,13 @@ class EagerStream(Stream[T]):
             f'Stream concatenation not supported between types {type(self)}, {type(other)}'
         return EagerStream(self.as_list() + other.as_list())
 
-
-InitType = TypeVar('InitType')
-NextType = TypeVar('NextType')
-
 class LazyStream(Stream[T]):
 
     __transformation: _Transformation[T]
 
     @staticmethod
-    def of(contents: Iterable[InitType]) -> LazyStream[InitType]:
-        def identity() -> Iterable[InitType]:
+    def of(contents: Iterable[T]) -> LazyStream[T]:
+        def identity() -> Iterable[T]:
             return deepcopy(contents)
         identity_transformation = _Transformation(identity)
         return LazyStream(identity_transformation)
@@ -202,8 +198,8 @@ class LazyStream(Stream[T]):
 
     def __chain_transformation(
         self, 
-        transform_function: Callable[[Iterable[T]], Iterable[NextType]],
-        ) -> LazyStream[NextType]:
+        transform_function: Callable[[Iterable[T]], Iterable[R]],
+        ) -> LazyStream[R]:
         """
         Helper function for chaining transformations together.
         """
@@ -213,20 +209,20 @@ class LazyStream(Stream[T]):
     ## INTERMEDIATE OPERATIONS ##
     #############################
 
-    def map(self, func: Callable[[T], NextType]) -> LazyStream[NextType]:
-        def elementwise_func(inputs: Iterable[T]) -> Iterable[NextType]:
+    def map(self, func: Callable[[T], R]) -> LazyStream[R]:
+        def elementwise_func(inputs: Iterable[T]) -> Iterable[R]:
             return map(func, inputs)
         return self.__chain_transformation(elementwise_func)
         
-    def flat_map(self, func: Callable[[T], Stream[NextType]]) -> LazyStream[NextType]:
-        def flatten_func(inputs: Iterable[T]) -> Iterable[NextType]:
+    def flat_map(self, func: Callable[[T], Stream[R]]) -> LazyStream[R]:
+        def flatten_func(inputs: Iterable[T]) -> Iterable[R]:
             output_streams = map(func, inputs)
             flattened_contents = [item for stream in output_streams for item in stream.as_list()]
             return flattened_contents
         return self.__chain_transformation(flatten_func)
 
-    def concat(self, other: Stream[NextType]) -> LazyStream[T | NextType]:
-        def concat_func(inputs: Iterable[T]) -> Iterable[T | NextType]:
+    def concat(self, other: Stream[R]) -> LazyStream[T | R]:
+        def concat_func(inputs: Iterable[T]) -> Iterable[T | R]:
             return [item for item in inputs] + other.as_list()
         return self.__chain_transformation(concat_func)
 
@@ -258,7 +254,7 @@ class LazyStream(Stream[T]):
     def as_list(self) -> list[T]:
         return [item for item in self.__get_evaluated_contents()]
 
-    def reduce(self, func: Callable[[NextType, T], NextType], initial: NextType) -> NextType:
+    def reduce(self, func: Callable[[R, T], R], initial: R) -> R:
         evaluated = self.__get_evaluated_contents()
         return reduce(func, evaluated, initial)
 
@@ -295,7 +291,7 @@ class LazyStream(Stream[T]):
     def __len__(self) -> int:
         return self.count()
 
-    def __add__(self, other: Stream[NextType]) -> Stream[NextType | T]:
+    def __add__(self, other: Stream[R]) -> Stream[R | T]:
         assert isinstance(other, Stream), \
             f'Stream concatenation not supported between types {type(self)}, {type(other)}'
         return self.concat(other)
