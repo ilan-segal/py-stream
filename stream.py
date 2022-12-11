@@ -252,6 +252,60 @@ class LazyStream(Generic[T, R], Stream[R]):
             return sorted(inputs, key=key, reverse=reverse)
         return self.__chain_transformation(sorted_func)
 
+    def reverse(self) -> LazyStream[T, R]:
+        def reverse_func(inputs: Iterable[R]) -> Iterable[R]:
+            return [item for item in inputs][::-1]
+        return self.__chain_transformation(reverse_func)
+        
+
     #########################
     ## TERMINAL OPERATIONS ##
     #########################
+
+    def __get_evaluated_contents(self) -> Iterable[R]:
+        return self.__transformation.apply(self.__initial_contents)
+    
+    def as_list(self) -> list[R]:
+        return [item for item in self.__get_evaluated_contents()]
+
+    def reduce(self, func: Callable[[NextType, R], NextType], initial: NextType) -> NextType:
+        evaluated = self.__get_evaluated_contents()
+        return reduce(func, evaluated, initial)
+
+    def find_first(self, predicate: Callable[[R], bool]) -> Optional[R]:
+        evaluated = self.__get_evaluated_contents()
+        for item in evaluated:
+            if predicate(item):
+                return item
+        return None
+
+    def get_first(self) -> Optional[R]:
+        evaluated = self.as_list()
+        if len(evaluated) == 0:
+            return None
+        return evaluated[0]
+
+    def get_last(self) -> Optional[R]:
+        evaluated = self.as_list()
+        if len(evaluated) == 0:
+            return None
+        return evaluated[-1]
+
+    def count(self) -> int:
+        return len(self.as_list())
+
+
+    ########################
+    ## BUILT-IN OVERRIDES ##
+    ########################
+
+    def __iter__(self) -> Iterable[R]:
+        return self.__get_evaluated_contents()
+
+    def __len__(self) -> int:
+        return self.count()
+
+    def __add__(self, other: Stream[NextType]) -> Stream[NextType | R]:
+        assert isinstance(other, Stream), \
+            f'Stream concatenation not supported between types {type(self)}, {type(other)}'
+        return self.concat(other)
