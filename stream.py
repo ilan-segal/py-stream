@@ -15,7 +15,7 @@ T = TypeVar('T')
 R = TypeVar('R')
 
 
-class Stream(Generic[T], Iterable[T]):
+class Stream(Generic[T]):
     """
     Iterable stream class with monad-like behaviours.
     """
