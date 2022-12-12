@@ -48,15 +48,15 @@ s = (
 
 ### `Stream.flat_map`
 
-Streams support monadic-like behaviour with the `flat_map` method, which accepts functions that return other Streams. The accepted function is applied to each element of the Stream then the resultant Streams are all concatenated into the returned Stream. Example below:
+Streams support monadic-like behaviour with the `flat_map` method, which accept a function that returns an iterable. The accepted function is applied to each element of the Stream then the resultant outputs are all concatenated into the returned Stream. Example below:
 
 ```python
-def get_prime_factors(n: int) -> Stream[int]:
+def get_prime_factors(n: int) -> list[int]:
     # Return Stream containing the prime factorization of n
 
-get_prime_factors(10)  # EagerStream([2, 5])
-get_prime_factors(11)  # EagerStream([11])
-get_prime_factors(12)  # EagerStream([2, 2, 3])
+get_prime_factors(10)  # [2, 5]
+get_prime_factors(11)  # [11]
+get_prime_factors(12)  # [2, 2, 3]
 
 s = (
     EagerStream([10, 11, 12])

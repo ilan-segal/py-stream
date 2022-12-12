@@ -27,7 +27,7 @@ class Stream(Generic[_T]):
         """
         raise NotImplementedError
 
-    def flat_map(self, func: Callable[[_T], Stream[_R]]) -> Stream[_R]:
+    def flat_map(self, func: Callable[[_T], Iterable[_R]]) -> Stream[_R]:
         """
         Use func to transform this Stream's contents into a collection of Streams,
         then concatenate said streams into one Stream.
@@ -114,6 +114,9 @@ class Stream(Generic[_T]):
     def __len__(self) -> int:
         return len(self.as_list())
 
+    def __repr__(self) -> str:
+        return f'{type(self).__name__}([{", ".join(map(str, self.as_list()))}])'
+
 
 class EagerStream(Stream[_T]):
 
@@ -125,9 +128,9 @@ class EagerStream(Stream[_T]):
     def map(self, func: Callable[[_T], _R]) -> EagerStream[_R]:
         return EagerStream(map(func, self.__contents))
 
-    def flat_map(self, func: Callable[[_T], Stream[_R]]) -> EagerStream[_R]:
+    def flat_map(self, func: Callable[[_T], Iterable[_R]]) -> EagerStream[_R]:
         streams = map(func, self.__contents)
-        flattened_contents = [c for stream in streams for c in stream.as_list()]
+        flattened_contents = [c for stream in streams for c in stream]
         return EagerStream(flattened_contents)
 
     def concat(self, other: Stream[_R]) -> EagerStream[_T | _R]:
@@ -209,10 +212,6 @@ class LazyStream(Stream[_T]):
         self,
         initial_contents: list[_T] | _Transformation[_T],
         ) -> None:
-        """
-        This constructor should NOT be used by the client. To create a LazyStream
-        instance, see `LazyStream.of`
-        """
         if isinstance(initial_contents, _Transformation):
             self.__transformation = initial_contents
         elif isinstance(initial_contents, list):
@@ -241,10 +240,10 @@ class LazyStream(Stream[_T]):
             return map(func, inputs)
         return self.__chain_transformation(elementwise_func)
         
-    def flat_map(self, func: Callable[[_T], Stream[_R]]) -> LazyStream[_R]:
+    def flat_map(self, func: Callable[[_T], Iterable[_R]]) -> LazyStream[_R]:
         def flatten_func(inputs: Iterable[_T]) -> Iterable[_R]:
             output_streams = map(func, inputs)
-            flattened_contents = [item for stream in output_streams for item in stream.as_list()]
+            flattened_contents = [item for stream in output_streams for item in stream]
             return flattened_contents
         return self.__chain_transformation(flatten_func)
 
