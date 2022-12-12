@@ -103,6 +103,19 @@ s = (
 
 Optional `key` and `reverse` arguments may be provided to the method as with Python's built-in `sorted` function.
 
+### `Stream.unique`
+
+You may take all unique elements of a Stream (preserving order of contents):
+
+```python
+s = (
+    EagerStream([1, 1, 2, 1, 3, 2])
+    .unique()  # EagerStream([1, 2, 3])
+)
+```
+
+Optional `key` and `reverse` arguments may be provided to the method as with Python's built-in `sorted` function.
+
 ## Terminal Operations
 
 A Stream has several methods which return a non-Stream object. These are called *terminal operations* because they come at the end of a Stream's "life cycle."

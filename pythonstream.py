@@ -67,6 +67,12 @@ class Stream(Generic[_T]):
         """
         raise NotImplementedError
 
+    def unique(self) -> Stream[_T]:
+        """
+        Return a Stream which contains all unique elements of this Stream.
+        """
+        raise NotImplementedError
+
     def find_first(self, predicate: Callable[[_T], bool]) -> Optional[_T]:
         """
         Return the first element of this Stream for which predicate returns True.
@@ -140,6 +146,9 @@ class EagerStream(Stream[_T]):
 
     def reverse(self) -> EagerStream[_T]:
         return EagerStream(self.__contents[::-1])
+
+    def unique(self) -> EagerStream[_T]:
+        return EagerStream(set(self.as_list()))
 
     def find_first(self, predicate: Callable[[_T], bool]) -> Optional[_T]:
         for item in self.__contents:
@@ -260,7 +269,11 @@ class LazyStream(Stream[_T]):
         def reverse_func(inputs: Iterable[_T]) -> Iterable[_T]:
             return [item for item in inputs][::-1]
         return self.__chain_transformation(reverse_func)
-        
+
+    def unique(self) -> LazyStream[_T]:
+        def unique_func(inputs: Iterable[_T]) -> Iterable[_T]:
+            return set(inputs)
+        return self.__chain_transformation(unique_func)
 
     #########################
     ## TERMINAL OPERATIONS ##
