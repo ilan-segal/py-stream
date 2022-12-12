@@ -1,0 +1,22 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "pythonstream"
+version = "0.0.3"
+authors = [
+  { name="Ilan Segal", email="ilanbsegal@gmail.com" },
+]
+description = "Streams for Python 3"
+readme = "README.md"
+requires-python = ">=3.9"
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+]
+
+[project.urls]
+"Homepage" = "https://github.com/ilan-segal/pythonstream"
+"Bug Tracker" = "https://github.com/ilan-segal/pythonstream/issues"
