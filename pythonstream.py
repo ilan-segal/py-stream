@@ -210,16 +210,18 @@ class LazyStream(Stream[_T]):
 
     def __init__(
         self,
-        initial_contents: list[_T] | _Transformation[_T],
+        initial_contents: Iterable[_T] | _Transformation[_T],
         ) -> None:
         if isinstance(initial_contents, _Transformation):
             self.__transformation = initial_contents
-        elif isinstance(initial_contents, list):
-            def identity() -> Iterable[_T]:
-                return deepcopy(initial_contents)
-            self.__transformation = _Transformation(identity)
-        else:
-            assert False, 'initial_contents must be of type list'
+            return
+        try:
+            iter(initial_contents)  # type: ignore
+        except TypeError:
+            raise TypeError('initial_contents must be an iterable type')
+        def identity() -> Iterable[_T]:
+            return deepcopy(initial_contents)
+        self.__transformation = _Transformation(identity)
             
 
     def __chain_transformation(
