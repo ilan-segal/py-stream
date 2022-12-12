@@ -196,22 +196,23 @@ class LazyStream(Stream[_T]):
 
     __transformation: _Transformation[_T]
 
-    @staticmethod
-    def of(contents: Iterable[_T]) -> LazyStream[_T]:
-        def identity() -> Iterable[_T]:
-            return deepcopy(contents)
-        identity_transformation = _Transformation(identity)
-        return LazyStream(identity_transformation)
-
     def __init__(
         self,
-        transformation: _Transformation[_T],
+        initial_contents: list[_T] | _Transformation[_T],
         ) -> None:
         """
         This constructor should NOT be used by the client. To create a LazyStream
         instance, see `LazyStream.of`
         """
-        self.__transformation = transformation
+        if isinstance(initial_contents, _Transformation):
+            self.__transformation = initial_contents
+        elif isinstance(initial_contents, list):
+            def identity() -> Iterable[_T]:
+                return deepcopy(initial_contents)
+            self.__transformation = _Transformation(identity)
+        else:
+            assert False, 'initial_contents must be of type list'
+            
 
     def __chain_transformation(
         self, 
