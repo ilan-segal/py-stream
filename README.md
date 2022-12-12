@@ -146,10 +146,6 @@ Return the last element of the Stream.
 
 Equivalent to `Stream.concat()`.
 
-### `__iter__`
-
-Return an iterable version of the Stream.
-
 ### `__len__`
 
 Equivalent to `Stream.count()`

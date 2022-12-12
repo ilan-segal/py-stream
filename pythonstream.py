@@ -221,8 +221,7 @@ class LazyStream(Stream[_T]):
             raise TypeError('initial_contents must be an iterable type')
         def identity() -> Iterable[_T]:
             return deepcopy(initial_contents)
-        self.__transformation = _Transformation(identity)
-            
+        self.__transformation = _Transformation(identity)    
 
     def __chain_transformation(
         self, 
